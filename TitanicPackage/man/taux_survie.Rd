@@ -4,14 +4,22 @@
 \alias{taux_survie}
 \title{Calculate Titanic survival rates}
 \usage{
-taux_survie(variable)
+taux_survie(data, variable)
 }
 \arguments{
-\item{variable}{Name of the variable to analyze.}
+\item{data}{A data frame containing survived and the grouping column.
+survived must contain only "no" and "yes", with no missing values.}
+
+\item{variable}{Either "sex" or "passengerClass".}
 }
 \value{
-Survival percentages for each category.
+A named numeric array of survival proportions between zero and one.
 }
 \description{
-Calculates survival percentages by sex, class, or age.
+Calculate survival proportions from passenger-level TitanicSurvival data.
+}
+\examples{
+passengers <- data.frame(sex = c("female", "male"),
+                         survived = c("yes", "no"))
+taux_survie(passengers, "sex")
 }

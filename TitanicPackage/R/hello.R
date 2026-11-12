@@ -13,6 +13,11 @@
 #   Check Package:             'Ctrl + Shift + E'
 #   Test Package:              'Ctrl + Shift + T'
 
+#' Hello, World!
+#' @return The greeting, invisibly.
+#' @export
+#' @examples
+#' hello()
 hello <- function() {
   print("Hello, world!")
 }

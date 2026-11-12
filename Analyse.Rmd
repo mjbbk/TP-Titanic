@@ -7,105 +7,105 @@ output: html_document
 
 ### Loading the dataset
 ```{r}
-data("Titanic")
-titanic_df <- as.data.frame(Titanic)
-print(head(titanic_df))
+df <- carData::TitanicSurvival
+head(df)
+summary(df)
 ```
+
+Les donnees `TitanicSurvival` du package **carData** decrivent 1 309 passagers.
+Chaque ligne correspond a un passager : survie (`survived`), sexe (`sex`),
+age en annees (`age`) et classe (`passengerClass`). L'equipage n'est pas inclus.
+
+### Descriptive statistics
+```{r}
+nrow(df)
+colSums(is.na(df))
+table(df$survived)
+table(df$sex)
+table(df$passengerClass)
+summary(df$age)
+```
+
+L'age est manquant pour `r sum(is.na(df$age))` passagers. Ces observations
+restent incluses dans les taux de survie par sexe et par classe ; seules
+les valeurs d'age observees sont utilisees pour le graphique d'age.
+
 ### Overall survival rate
 ```{r}
-survivants <- sum(titanic_df$Freq[titanic_df$Survived == "Yes"])
-total <- sum(titanic_df$Freq)
-taux_survie<- survivants/total*100
-taux_survie
+taux_global <- mean(df$survived == "yes") * 100
+taux_global
 ```
+
 ### Survival counts by sex
 ```{r}
-survie_sexe<- aggregate(Freq~Sex+ Survived,
-                        data=titanic_df, sum)
+survie_sexe <- table(Sexe = df$sex, Survie = df$survived)
 survie_sexe
 ```
+
 ### Survival rate by sex
 ```{r}
-taux_sexe <- prop.table(
-  xtabs(Freq ~ Sex + Survived, data=titanic_df),
-  margin=1
-) * 100
-
+taux_sexe <- prop.table(survie_sexe, margin = 1) * 100
 round(taux_sexe, 2)
 ```
+
 ### Survival rate by class
 ```{r}
-taux_classe <- prop.table(
-  xtabs(Freq ~ Class + Survived, data = titanic_df),
-  margin = 1
-) * 100
-
+survie_classe <- table(Classe = df$passengerClass, Survie = df$survived)
+survie_classe
+taux_classe <- prop.table(survie_classe, margin = 1) * 100
 round(taux_classe, 2)
 ```
-### Survival rate by age
-```{r}
-taux_age <- prop.table(
-  xtabs(Freq ~ Age + Survived, data = titanic_df),
-  margin = 1
-) * 100
 
-round(taux_age, 2)
-```
 ### Graph: Survival by sex
 ```{r}
-barplot(taux_sexe[, "Yes"],
-        main = "Taux de survie selon le sexe",
-        xlab = "Sexe",
-        ylab = "Taux de survie (%)",
-        col = "lightblue")
+barplot(taux_sexe[, "yes"],
+        main = "Taux de survie selon le sexe", xlab = "Sexe",
+        ylab = "Taux de survie (%)", col = "lightblue", ylim = c(0, 100))
 ```
+
 ### Graph: Survival by class
 ```{r}
-barplot(taux_classe[, "Yes"],
-        main = "Taux de survie selon la classe",
-        xlab = "Classe",
-        ylab = "Taux de survie (%)",
-        col = "lightgreen")
+barplot(taux_classe[, "yes"],
+        main = "Taux de survie selon la classe", xlab = "Classe",
+        ylab = "Taux de survie (%)", col = "lightgreen", ylim = c(0, 100))
 ```
-### Graph: Survival by age
+
+### Graph: Age by survival
 ```{r}
-barplot(taux_age[, "Yes"],
-        main = "Taux de survie selon l'age",
-        xlab = "Age",
-        ylab = "Taux de survie (%)",
-        col = "lightpink")
+boxplot(age ~ survived, data = df,
+        main = "Age selon la survie", xlab = "Survie", ylab = "Age (annees)",
+        col = c("lightpink", "lightblue"))
+tapply(df$age, df$survived, median, na.rm = TRUE)
 ```
 
-# Interprétation des résultats
+## Interpretation des resultats
 
-**Survie selon le sexe :**
+**Survie selon le sexe :** les femmes avaient un taux de survie nettement
+superieur a celui des hommes (`r round(taux_sexe["female", "yes"], 1)` %
+contre `r round(taux_sexe["male", "yes"], 1)` %).
 
-Les femmes avaient un taux de survie nettement supérieur à celui des hommes (environ 73 % contre 21 %).
+**Survie selon la classe :** les taux sont de
+`r round(taux_classe["1st", "yes"], 1)` % en premiere classe,
+`r round(taux_classe["2nd", "yes"], 1)` % en deuxieme classe et
+`r round(taux_classe["3rd", "yes"], 1)` % en troisieme classe.
 
-Survie selon la classe :
+**Age selon la survie :** parmi les ages observes, l'age median est de
+`r median(df$age[df$survived == "yes"], na.rm = TRUE)` ans chez les survivants
+et de `r median(df$age[df$survived == "no"], na.rm = TRUE)` ans chez les
+non-survivants. Les distributions se chevauchent et les ages manquants
+limitent l'interpretation.
 
-Les passagers de première classe avaient les meilleures chances de survie (environ 62 %), tandis que les passagers de troisième classe et les membres d'équipage avaient les taux les plus faibles.
-
-Survie selon l'âge :
-
-Les enfants avaient un taux de survie supérieur à celui des adultes (environ 52 % contre 31 %).
-
-**Conclusion :**
-
-Cette analyse montre que le sexe, la classe et l'âge sont associés aux différences de survie lors du naufrage du Titanic. Ces résultats sont descriptifs et ne permettent pas, à eux seuls, d'établir des relations de cause à effet.
-
-
-
+**Conclusion :** la survie varie selon le sexe et la classe. Le graphique
+permet aussi de comparer les ages observes selon la survie. Ces resultats
+sont descriptifs et ne permettent pas d'etablir des relations de cause a effet.
 
 ## Survival rates using TitanicPackage
 
-We use our R package to calculate survival rates by sex and passenger class.
+Les fonctions du package utilisent les memes donnees et renvoient des
+proportions ; on les multiplie par 100 pour afficher des pourcentages.
 
 ```{r}
 library(TitanicPackage)
-
-taux_survie("Sex")
-
-taux_survie("Class")
+round(taux_survie_sex(df) * 100, 2)
+round(taux_survie_class(df) * 100, 2)
 ```
-
