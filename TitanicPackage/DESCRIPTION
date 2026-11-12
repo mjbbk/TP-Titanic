@@ -1,0 +1,16 @@
+Package: TitanicPackage
+Type: Package
+Title: Analysis of Titanic Survival Data
+Version: 0.1.0
+Authors@R: c(
+    person(
+      "Marjan", "Babaki",
+      email = "babaki@etu.unisrea.fr",
+      role = c("aut", "cre")
+    )
+  )
+Description: Provides functions to calculate survival rates of Titanic passengers by sex, class and age.
+License: MIT
+Encoding: UTF-8
+LazyData: true
+Config/roxygen2/version: 8.1.1

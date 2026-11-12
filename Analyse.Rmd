@@ -1,0 +1,111 @@
+---
+title: "Tp-Titanic"
+author: "Marjan BABAKI"
+date: "2026-11-12"
+output: html_document
+---
+
+### Loading the dataset
+```{r}
+data("Titanic")
+titanic_df <- as.data.frame(Titanic)
+print(head(titanic_df))
+```
+### Overall survival rate
+```{r}
+survivants <- sum(titanic_df$Freq[titanic_df$Survived == "Yes"])
+total <- sum(titanic_df$Freq)
+taux_survie<- survivants/total*100
+taux_survie
+```
+### Survival counts by sex
+```{r}
+survie_sexe<- aggregate(Freq~Sex+ Survived,
+                        data=titanic_df, sum)
+survie_sexe
+```
+### Survival rate by sex
+```{r}
+taux_sexe <- prop.table(
+  xtabs(Freq ~ Sex + Survived, data=titanic_df),
+  margin=1
+) * 100
+
+round(taux_sexe, 2)
+```
+### Survival rate by class
+```{r}
+taux_classe <- prop.table(
+  xtabs(Freq ~ Class + Survived, data = titanic_df),
+  margin = 1
+) * 100
+
+round(taux_classe, 2)
+```
+### Survival rate by age
+```{r}
+taux_age <- prop.table(
+  xtabs(Freq ~ Age + Survived, data = titanic_df),
+  margin = 1
+) * 100
+
+round(taux_age, 2)
+```
+### Graph: Survival by sex
+```{r}
+barplot(taux_sexe[, "Yes"],
+        main = "Taux de survie selon le sexe",
+        xlab = "Sexe",
+        ylab = "Taux de survie (%)",
+        col = "lightblue")
+```
+### Graph: Survival by class
+```{r}
+barplot(taux_classe[, "Yes"],
+        main = "Taux de survie selon la classe",
+        xlab = "Classe",
+        ylab = "Taux de survie (%)",
+        col = "lightgreen")
+```
+### Graph: Survival by age
+```{r}
+barplot(taux_age[, "Yes"],
+        main = "Taux de survie selon l'age",
+        xlab = "Age",
+        ylab = "Taux de survie (%)",
+        col = "lightpink")
+```
+
+# Interprétation des résultats
+
+**Survie selon le sexe :**
+
+Les femmes avaient un taux de survie nettement supérieur à celui des hommes (environ 73 % contre 21 %).
+
+Survie selon la classe :
+
+Les passagers de première classe avaient les meilleures chances de survie (environ 62 %), tandis que les passagers de troisième classe et les membres d'équipage avaient les taux les plus faibles.
+
+Survie selon l'âge :
+
+Les enfants avaient un taux de survie supérieur à celui des adultes (environ 52 % contre 31 %).
+
+**Conclusion :**
+
+Cette analyse montre que le sexe, la classe et l'âge sont associés aux différences de survie lors du naufrage du Titanic. Ces résultats sont descriptifs et ne permettent pas, à eux seuls, d'établir des relations de cause à effet.
+
+
+
+
+## Survival rates using TitanicPackage
+
+We use our R package to calculate survival rates by sex and passenger class.
+
+```{r}
+library(TitanicPackage)
+
+taux_survie("Sex")
+
+taux_survie("Class")
+```
+
